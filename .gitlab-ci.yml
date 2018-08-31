@@ -1,0 +1,72 @@
+image: golang:latest
+
+variables:
+  REPO_NAME: gitlab.com/oleg.balunenko/kafka-dump
+  BIN_NAME: kafka-dump
+  ARTIFACTS_DIR: artifacts
+  GOARCH: amd64
+
+
+
+
+# The problem is that to be able to use go get, one needs to put
+# the repository in the $GOPATH. So for example if your gitlab domain
+# is gitlab.com, and that your repository is namespace/project, and
+# the default GOPATH being /go, then you'd need to have your
+# repository in /go/src/gitlab.com/namespace/project
+# Thus, making a symbolic link corrects this.
+before_script:
+- go version
+- export GO111MODULE=on
+- echo ${GO111MODULE}
+- mkdir -p ${GOPATH}/src/${REPO_NAME}
+- mkdir -p ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}
+- cp -r ${CI_PROJECT_DIR}/* ${GOPATH}/src/${REPO_NAME}/
+- cd ${GOPATH}/src/${REPO_NAME}
+
+
+stages:
+- test
+- lint
+- build
+
+
+Metalinter analysis:
+  stage: lint
+  script:
+  - go mod vendor
+  - export GO111MODULE=off
+  - go get -u github.com/alecthomas/gometalinter/...
+  - gometalinter --install
+  - go vet -composites=false $(go list ./... | grep -v /vendor/)
+  - gometalinter --vendor --disable=gotype --linter='errcheck:errcheck -blank . :PATH:LINE:COL:MESSAGE'
+
+Unit Tests:
+  stage: test
+  script:
+  - export GO111MODULE=off
+  - go get -u github.com/axw/gocov/...
+  - export GO111MODULE=on
+  - go fmt $(go list ./... | grep -v /vendor/)
+  - go test -race -coverpkg=./... -v -coverprofile .testCoverage.out ./...
+  - gocov convert .testCoverage.out | gocov report
+
+
+
+
+Build Application:
+  stage: build
+  script:
+
+  - export GOOS=darwin
+  - go build -o ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}-${GOOS}
+
+
+  - export GOOS=linux
+  - go build -o ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}-${GOOS}
+
+  - export GOOS=windows
+  - go build -o ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}-${GOOS}.exe
+  artifacts:
+    paths:
+    - ${ARTIFACTS_DIR}
