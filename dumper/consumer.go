@@ -92,7 +92,7 @@ func Start(cfg *config.Config) {
 
 		case consumerError := <-consumer.Errors():
 			msgCount++
-			log.Errorf("Received consumerError ", consumerError)
+			log.Errorf("Received consumerError: %v ", consumerError)
 
 		case <-signals:
 			log.Infof("Got UNIX signal, shutting down")
