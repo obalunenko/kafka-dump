@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	"github.com/Shopify/sarama"
-	cluster "github.com/bsm/sarama-cluster"
+	"github.com/bsm/sarama-cluster"
 	"github.com/oleg-balunenko/kafka-dump/config"
 	log "github.com/sirupsen/logrus"
 )
@@ -21,7 +21,7 @@ func Start(cfg *config.Config) {
 
 	kafkaConfig.Group.Return.Notifications = true
 
-	kafkaConfig.ClientID = cfg.ClientID
+	kafkaConfig.ClientID = cfg.KafkaClientID
 
 	kafkaConfig.Consumer.Return.Errors = true
 	kafkaConfig.Version = cfg.KafkaVersion()
@@ -35,7 +35,7 @@ func Start(cfg *config.Config) {
 
 	}
 
-	consumer, err := cluster.NewConsumer(cfg.KafkaBrokers, cfg.ConsumerGroup, cfg.Topics, kafkaConfig)
+	consumer, err := cluster.NewConsumer(cfg.KafkaBrokers, cfg.KafkaGroupID, cfg.Topics, kafkaConfig)
 
 	if err != nil {
 		log.Fatalf("Kafka connection failed. Err: %v", err)
@@ -51,7 +51,7 @@ func Start(cfg *config.Config) {
 	msgCount := 0
 	mu := &sync.Mutex{}
 
-	// Get signnal for finish
+	// Get signal for finish
 
 	for {
 		log.Infof("Consumer loop started\n")

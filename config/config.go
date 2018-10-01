@@ -18,21 +18,24 @@ import (
 	"github.com/Shopify/sarama"
 )
 
+const timeFormat = "150405"
+const toolName = "kafka-dumper"
+
 // Config stores service config parameters
 type Config struct {
-	Init               bool   `default:"false"`
+	Init               bool   `required:"false"`
 	OutputDir          string `default:"OUTPUT_DATA"`
-	ClientID           string `default:"kafka-dumper"`
-	ConsumerGroup      string `default:"kafka-dumper"`
+	KafkaClientID      string `default:"kafka-dumper"`
+	KafkaGroupID       string `default:"kafka-dumper"`
 	KafkaVersionString string `default:"0.10.2.0"`
 	kafkaVersion       sarama.KafkaVersion
 	KafkaBrokers       []string `required:"true"`
 	Timezone           string   `default:"GMT"`
 	Log                string   `default:"Info"`
-	LocalLog           bool     `default:"false"` // if true  - will write log to stdout and to file kafka-dump.log at OutputDir
-	Overwrite          bool     `default:"false"` // if true - will create unique consumerID and messages will be received again
-	Topics             []string `required:"true"` // (example: '{"Topic1", "Topic2"}'
-	Newest             bool     `default:"false"` // if set true - will sturt dump all messages that appears in kafka after start of tool
+	LocalLog           bool     `required:"false"` // if true  - will write log to stdout and to file kafka-dump.log at OutputDir
+	Overwrite          bool     `required:"false"` // if true - will create unique consumerID and messages will be received again
+	Topics             []string `required:"true"`  // (example: '{"Topic1", "Topic2"}'
+	Newest             bool     `required:"false"` // if set true - will start dump all messages that appears in kafka after start of tool
 
 }
 
@@ -40,10 +43,10 @@ type Config struct {
 func setFlagsHelp() map[string]string {
 	usageMsg := make(map[string]string)
 
-	usageMsg["Init"] = "When true - creates initial config at usr.HomeDir/.tolling/testing-kafka-dump"
+	usageMsg["Init"] = "When true - creates initial config at usr.HomeDir/.config/kafka-dumper"
 
-	usageMsg["ClientID"] = "Kafka consumer group clientID"
-	usageMsg["ConsumerGroup"] = "Kafka Consumer group Name"
+	usageMsg["KafkaClientID"] = "Kafka consumer group clientID"
+	usageMsg["KafkaGroupID"] = "Kafka Consumer group Name"
 	usageMsg["KafkaBrokers"] = "Kafka brokers address"
 	usageMsg["Log"] = `Log level: All, Debug, Info, Error, Fatal, Panic, Warn`
 	usageMsg["KafkaVersionString"] = `Kafka version`
@@ -53,7 +56,7 @@ func setFlagsHelp() map[string]string {
 	usageMsg["Topics"] = `List of all topics with specified message type which will be dumped`
 	usageMsg["Log"] = `Log level that will be displayed (DEBUG, INFO, ERROR, WARN, FATAL"`
 	usageMsg["LocalLog"] = `When true will write log to stdout and to file kafka-dump.log at OutputDir`
-	usageMsg["Newest"] = `when set true - will sturt dump all messages that appears in kafka after start of tool`
+	usageMsg["Newest"] = `when set true - will start dump all messages that appears in kafka after start of tool`
 
 	return usageMsg
 }
@@ -69,15 +72,15 @@ func (c *Config) GetTimeZone() *time.Location {
 	return timezone
 }
 
-// Make each tool run unique - add hostname of runner to ClientID for Kafka Consumer
+// Make each tool run unique - add hostname of runner to KafkaClientID for Kafka Consumer
 func (c *Config) addHostnameToClientID() {
 	hn, err := os.Hostname()
 	if err != nil {
-		hn = time.Now().Format("150405")
+		hn = time.Now().Format(timeFormat)
 		log.Infof("Failed to get hostname, using %s (%+v)", hn, err)
 	}
 
-	c.ClientID = c.ClientID + "-" + hn
+	c.KafkaClientID = c.KafkaClientID + "-" + hn
 
 }
 
@@ -85,8 +88,8 @@ func (c *Config) addHostnameToClientID() {
 func (c *Config) overwriteMessages() {
 	if c.Overwrite {
 		log.Infof("All received Messages will be overwritten")
-		c.ConsumerGroup += "-" + time.Now().Format("150405")
-		c.ClientID += "-" + time.Now().Format("150405")
+		c.KafkaGroupID += "-" + time.Now().Format(timeFormat)
+		c.KafkaClientID += "-" + time.Now().Format(timeFormat)
 
 		if err := os.RemoveAll(path.Join(c.OutputDir)); err != nil {
 			log.Fatalf("Failed to remove all dirs: %v", err)
@@ -107,9 +110,9 @@ func LoadConfig() *Config {
 		log.Fatal(errUser)
 	}
 	log.Infof("Current Username: %s. Home dir: %s", usr.Username, usr.HomeDir)
-	configPath := path.Join(usr.HomeDir, ".config/", "kafka-dumper")
+	configPath := path.Join(usr.HomeDir, ".config/", toolName)
 
-	m := newConfig(path.Join(configPath, "config.toml"), "KafkaDump", false)
+	m := newConfig(path.Join(configPath, "config.toml"), "KafkaDump", true)
 
 	err := m.Load(svcConfig)
 	if err != nil {
@@ -148,8 +151,8 @@ func LoadConfig() *Config {
 }
 
 // KafkaVersion setter
-func (c *Config) setKafkaVerion() {
-	//Parse kafkaversion
+func (c *Config) setKafkaVersion() {
+	//Parse kafkaVersion
 	if v, err := sarama.ParseKafkaVersion(c.KafkaVersionString); err == nil {
 		c.kafkaVersion = v
 	} else {
@@ -194,7 +197,7 @@ func newConfig(path string, prefix string, camelCase bool) *multiconfig.DefaultL
 	f := &multiconfig.FlagLoader{
 		Prefix:        "",
 		Flatten:       false,
-		CamelCase:     camelCase,
+		CamelCase:     false,
 		EnvPrefix:     prefix,
 		ErrorHandling: 0,
 		Args:          nil,
@@ -211,7 +214,7 @@ func newConfig(path string, prefix string, camelCase bool) *multiconfig.DefaultL
 
 }
 
-// creates initial configfile
+// creates initial config file
 func initServiceConfigFile() {
 	log.Infof("Creating initial config file...")
 	usr, errUser := user.Current()
@@ -219,7 +222,7 @@ func initServiceConfigFile() {
 		log.Fatal(errUser)
 	}
 	log.Infof("Current Username: %s. Home dir: %s", usr.Username, usr.HomeDir)
-	configPath := path.Join(usr.HomeDir, ".config", "kafka-dumper", "config.toml")
+	configPath := path.Join(usr.HomeDir, ".config", toolName, "config.toml")
 	if err := os.MkdirAll(filepath.Dir(configPath), 0700); err != nil {
 		log.Fatalf("failed creating all dirs for config file [%s]: %v", filepath.Dir(configPath), err)
 
@@ -232,8 +235,8 @@ func initServiceConfigFile() {
 	OutputDir := path.Join(usr.HomeDir, "Desktop", "KAFKA-DUMP", "OUTPUT")
 
 	_, writeErr := configFile.WriteString(fmt.Sprintf(`OutputDir="%s"
-Topics='{"DE_GPS_POINT","DE_LEGACY_GPSDATA", "DE_2018Q3_TOLLDECLARATION-L2", "DE_2018Q4_TOLLDECLARATION-L2"}'
-ClientID="kafka-dumper"
+Topics=["Topic1", "Topic2"]
+KafkaClientID="kafka-dumper"
 Consumer_Group="test-kafka-dump"
 KafkaVersion="0.10.2.0"
 KafkaBrokers=["localhost:9092"]

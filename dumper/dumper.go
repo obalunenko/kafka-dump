@@ -12,7 +12,7 @@ import (
 
 func dumpMessage(cfg *config.Config, msg *sarama.ConsumerMessage) error {
 	//filename to use
-	filename, err := generateL1FileName(cfg, msg)
+	filename, err := generateFileName(msg)
 	if err != nil {
 		log.Errorf("failed generating filename: %v", err)
 		return err
@@ -27,7 +27,7 @@ func dumpMessage(cfg *config.Config, msg *sarama.ConsumerMessage) error {
 	return nil
 }
 
-func generateL1FileName(svc *config.Config, msg *sarama.ConsumerMessage) (string, error) {
+func generateFileName(msg *sarama.ConsumerMessage) (string, error) {
 
 	//timezone := svc.GetTimeZone()
 	log.Debugf("Timestamp: %s", msg.BlockTimestamp)
