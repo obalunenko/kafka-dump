@@ -84,7 +84,7 @@ jobs:
       - release/${MYAPP}-windows-386.exe.sha256
       skip_cleanup: true
       on:
-        repo: oleg-balunenko/logs-converter
+        repo: oleg-balunenko/${MYAPP}
         branch: master
         tags: true
 addons:
