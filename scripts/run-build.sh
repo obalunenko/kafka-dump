@@ -51,6 +51,9 @@ for OS in ${BUILD_PLATFORMS[@]}; do
       echo "Building for ${OS}/${ARCH} with CGO_ENABLED=${CGO_ENABLED}"
       GOARCH=${ARCH} GOOS=${OS} CGO_ENABLED=${CGO_ENABLED} ${GO_BUILD_CMD} -ldflags "${GO_BUILD_LDFLAGS}"\
             -o "${REPO_ROOT}/release/${NAME}"
+
+      chmod +x "${REPO_ROOT}/release/${NAME}"
+
       pushd "${REPO_ROOT}/release" > /dev/null
       shasum -a 256 "${NAME}" > "${NAME}.sha256"
       popd > /dev/null
