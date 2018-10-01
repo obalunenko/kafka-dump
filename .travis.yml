@@ -1,0 +1,90 @@
+language: go
+dist: trusty
+sudo: false
+install: true
+env:
+  global:
+  - MYAPP=kafka-dump
+  - MYEMAIL=oleg.balunenko@gmail.com
+  - secure: eBH1txBK3gv8yvjJHv+faA3MT9xQun41Xc8b7P9B15PD7lmAbCrks7EnnhwaD92dBmhSPHQaLtvINEIXFB8HF/58B39y+WdtSVKFoXej+XfmghnSlJwfMauX81QAhAXyknbNsshPPAOzVFxPtve49yZInz7EAbvR2GIt5I9yOc+bBgR8xpPbS6NE66EVAoEoLhRMUHxLqH+gGzy0D7yQpCZ/VEAfozjxK5144PsMx172HLkmfDi9Z3yajQMPE8mpEFHlrAcp6r/ThPXzKT4GnUXNvnEMB0aMeuNFTmHkw90ZBbXS2/DXk9nT0V0ti46R7p12oISgw4uMMh8ju6PyzfSQlpUWkrAb++8H9YnHRc3SlmdhJtQehwAUTqD7RvoHsAJ6shk0l1VC4nwhxg73cIKPAtSw4RoaueSBahThO27bDTcpU8XXaZh/7HGVb2Ep41Q7R2WRpluh7UssvTjQq8Ih6ndcq+inoTIui6RWBitb6ci8YYFuL588qHzeNmNCKVlun8vhGB5BSnkMjOOfvS6+ZbffHPIXh+/5PXIfTZZKAS+3k3nA4QrdteppdaBoodVoCRHlmnOQ9G4cTKaj9v5JmulzgcR6YZbW1YDWV8/lpBk8fpjVELSJTjz5py3BG6/O7p/Z/seuuUR8d5I9TbfEdA6OJRnr8TZ8l+j/OAI=
+  - secure: IDskXB+0b47kdsaG7DskoGVeyAsU1OuuvGYFqueq35dR+J5RlALjJA4aS/jSoBUQaPxlBp7hWJv3NPVnP0vzAwRNhHz3+T7NZ4YWcScb1J+Cw0ga6SMhUP8W8YuWZFNjWIpY7B2/aXJ7QrHbTYqJosGts7UnefSDixgWZ+JgGGEmvb3dwjrhqBjLUyk8qke6PhZtUPFrx5y59K0S/pYrcs2R37axxUUtwYD1EaaTsapw0uxThnX2mOaHTAh+eQMELzQpNotgosAU6JdokKSMtsa/hhayXemltaxIqs38bHo2jJoYvh2nbbznNwRIKtUeR4LpP1OUgMWEI0C1pvcC6G1s2jAjvr9yJPOQfcda3FgKI2rSK3uKlMWqjnfYUQFueT/+skT2dOfPoUHxqXLZm3AzFZjBOxL1ie3AH54vf+YErdFN8UF0V8jEg3Dlpm+6khGYBeKc/0k0RLw4xJhyHPHeL6eCDFOJvstmV6RJpxmVdwDuwfewIha6+Rb3CuakgndV1v/4Vcqes0gTWtt742v5O7O7bKmm5gMdB+38Oh0Q8JWqwArHeij0qRAr4xP+BwSXkDzRZchrO/Lf1wk7NOKRF+kTjLkFCkswWKGO9LN/McwIAGZr23dLlrwIb1BvSrAzQsDXgUuKT8zLhn5heMZeuTywxfJhc6aUjTrW7Pc=
+  - secure: RpCFQXY/UcJwcqfVBrIScG7ASarAYW8kimU1R5YxhK/ve74sPc84/tkch9Vf7/JCX3aZNI5mbwRERYSQrHUvcESy4GR2dij8/4jjAihvGSXPjalukona95JUhfSZWjqkCK+VYPBw1cOLD14Myren+eQk00KgijdZR5y37LY+pbgcO1HyAXlICU/KwMsATK4jtqxqa4I+On2xjBV5Eextg/yaM8Bi8x+tq1mebvHV9Qcswrd8bbX0svDKT4DOuQZNcXzHD0LiYIbWZH3rLQhw0lPHWkM+1DuDeqg2G5YWVSeDE/X9hSjeBL1YMrRZ4MFCbjYRc0TUR3XWCqbIL2sPzMUwklfQNf0nilwo/FbdUko2B33AWky3rX7KayV6h4U46VoJVPcL6iHmIU+gVffeRTkndo0j0p0VbWDWAKPV0L5c0E5vYW1s1w1Yve40xmxTftyKw9f9Tos2MV3idEe2sv1NZC3N49mLFwQQstR6JmHE80fXUgxameLDsxOybUbNcJdWNi1bW2idpC9ZxZf2fLriGDJJJZlO6DKlvAGZTcOU0TbwoAhQHfOU4qhxP9QsvDNNcrxgKgUvr3TMAK/AgZbIivG/Im+ygTC59QcUjrjeNRE3yKAwCCfTX83UfERxSkATrzGWlZZo1NfcJqq0WCFAwoKVb8AY2XECSXOYUyQ=
+jobs:
+  include:
+  - stage: Unit Tests
+    go:
+    - 1.11.x
+    os:
+    - osx
+    script:
+    - env GO111MODULE=off
+    - echo "Run unit tests..."
+    - go get golang.org/x/tools/cmd/cover/...
+    - go get github.com/mattn/goveralls/...
+    - env GO111MODULE=on go test -v -race -coverpkg=./... -covermode=atomic -coverprofile=coverage.out
+      ./...
+    - "$HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken
+      $COVERALLS_TOKEN"
+  - stage: Metalinter analysis
+    go:
+    - 1.11.x
+    os:
+    - osx
+    script:
+    - env GO111MODULE=off
+    - go get -u github.com/alecthomas/gometalinter/...
+    - gometalinter --install
+    - go vet -composites=false $(go list ./... | grep -v /vendor/)
+    - gometalinter --vendor --disable=gotype --linter='errcheck:errcheck -blank .
+      :PATH:LINE:COL:MESSAGE'
+  - stage: Sonar Scanner
+    addons:
+      sonarcloud:
+        organization: oleg-balunenko-github
+        token: "$SONAR_TOKEN"
+    script:
+    - sonar-scanner -Dsonar.projectVersion=${TRAVIS_TAG}
+  - stage: Build Application
+    go:
+    - 1.11.x
+    os:
+    - osx
+    script:
+    - echo "Build stage"
+    - mkdir -p build/{386,amd64}
+    - GOARCH=386 go build --ldflags "-X main.version=${TRAVIS_TAG} -X main.build=${TRAVIS_BUILD_NUMBER}
+      -X main.commit=${TRAVIS_COMMIT}" -o build/386/${MYAPP}-386 *.go
+    - GOARCH=amd64 go build --ldflags "-X main.version=${TRAVIS_TAG} -X main.build=${TRAVIS_BUILD_NUMBER}
+      -X main.commit=${TRAVIS_COMMIT}" -o build/amd64/${MYAPP}-amd64 *.go
+  - stage: GitHub Release
+    go:
+    - 1.11.x
+    os:
+    - osx
+    go_import_path: github.com/oleg-balunenko/logs-converter
+    install: skip
+    script: skip
+    before_deploy:
+    - "./scripts/run-build.sh"
+    deploy:
+    - provider: releases
+      api_key:
+        secure: "${GH_TOKEN}"
+      file:
+      - release/${MYAPP}-linux-amd64
+      - release/${MYAPP}-linux-amd64.sha256
+      - release/${MYAPP}-darwin-amd64
+      - release/${MYAPP}-darwin-amd64.sha256
+      - release/${MYAPP}-windows-amd64.exe
+      - release/${MYAPP}-windows-amd64.exe.sha256
+      - release/${MYAPP}-linux-386
+      - release/${MYAPP}-linux-386.sha256
+      - release/${MYAPP}-windows-386.exe
+      - release/${MYAPP}-windows-386.exe.sha256
+      skip_cleanup: true
+      on:
+        repo: oleg-balunenko/logs-converter
+        branch: master
+        tags: true
+addons:
+  ssh_known_hosts: github.com

@@ -1,75 +1,58 @@
-#!/bin/bash
-
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-REPO_DIR="$( cd ${SCRIPT_DIR} && git rev-parse --show-toplevel )"
-PACKAGE_NAME="$(basename "${REPO_DIR}")"
-
-BIN_DIR=${REPO_DIR}/bin
+set -e
 
 
-printf "Location of run-build.sh = ${SCRIPT_DIR}\n"
-printf "Location of bin dir = ${BIN_DIR}\n"
-printf "Package name = ${PACKAGE_NAME}\n"
+REPO_ROOT=$(git rev-parse --show-toplevel)
+APP="kafka-dump"
+VERSION=$(git describe --tags --dirty)
+COMMIT_HASH=$(git rev-parse --short HEAD 2>/dev/null)
+DATE=$(date "+%Y-%m-%d")
+BUILD_PLATFORM=$(uname -a | awk '{print tolower($1);}')
+IMPORT_DURING_SOLVE=${IMPORT_DURING_SOLVE:-false}
 
-if [ `ls -1 ${REPO_DIR}/*go 2>/dev/null | wc -l ` -gt 0 ]
-then
-	printf "\n${REPO_DIR} is a GO project - ok\n"
-else
-	printf "\n${REPO_DIR} is a non-GO project - nok.\n Exiting....\n"
-	exit
+if [[ "$(pwd)" != "${REPO_ROOT}" ]]; then
+  echo "you are not in the root of the repo" 1>&2
+  echo "please cd to ${REPO_ROOT} before running this script" 1>&2
+  exit 1
 fi
 
+GO_BUILD_CMD="go build -a -installsuffix cgo"
+GO_BUILD_LDFLAGS="-s -w -X main.commitHash=${COMMIT_HASH} -X main.buildDate=${DATE} -X main.version=${VERSION} -X main.flagImportDuringSolve=${IMPORT_DURING_SOLVE}"
+
+if [[ -z "${BUILD_PLATFORMS}" ]]; then
+  BUILD_PLATFORMS="linux windows darwin"
+fi
+
+if [[ -z "${BUILD_ARCHS}" ]]; then
+  BUILD_ARCHS="amd64 386"
+fi
+
+mkdir -p "${REPO_ROOT}/release"
+
+for OS in ${BUILD_PLATFORMS[@]}; do
+  for ARCH in ${BUILD_ARCHS[@]}; do
+    NAME="${APP}-${OS}-${ARCH}"
+    if [[ "${OS}" == "windows" ]]; then
+      NAME="${NAME}.exe"
+    fi
 
 
-mkdir -p ${BIN_DIR}
-
-rm -rf ${BIN_DIR}/*
-
-
-
-
-
-platforms=("windows/amd64" "darwin/amd64" "linux/amd64")
-
-for platform in "${platforms[@]}"
-do
-	platform_split=(${platform//\// })
-	GOOS=${platform_split[0]}
-	GOARCH=${platform_split[1]}
-	output_name=${PACKAGE_NAME}
-	output_dir=$GOOS'-'$GOARCH
-	awk -v line=$(tput cols) 'BEGIN{for (i = 1; i <= line; ++i){printf "-";}}'
-	printf "\n\n"
-	printf "${RED}DEBUG:${NORMAL} Now will be compiled for ${GOOS} - ${GOARCH} ....\n"
-
-	if [ $GOOS = "windows" ]; then
-		output_name+='.exe'
-	fi
-	env GOOS=$GOOS GOARCH=$GOARCH go build -o ${BIN_DIR}/${output_dir}/${output_name}
-	if [ $? -ne 0 ]; then
-		echo 'An error has occurred! Aborting the script execution...'
-		exit 1
-	fi
-	if [ -e ${output_dir}/${PACKAGE_NAME}* ]
-	then
-		printf "${RED}DEBUG:${NORMAL} ${output_dir}/${output_name} ok\n"
+    if [[ "${OS}" == "darwin" && "${BUILD_PLATFORM}" == "darwin" ]]; then
+      CGO_ENABLED=1
+    else
+      CGO_ENABLED=0
+    fi
+    if [[ "${ARCH}" == "ppc64" || "${ARCH}" == "ppc64le" ]] && [[ "${OS}" != "linux" ]]; then
+      # ppc64 and ppc64le are only supported on Linux.
+      echo "Building for ${OS}/${ARCH} not supported."
+    elif [[ "${ARCH}" == "386" ]] && [[ "${OS}" == "darwin" ]]; then
+	echo "Building for ${OS}/${ARCH} not supported."
 	else
-		printf "${RED}DEBUG:${NORMAL} ${output_dir}/${output_name} nok\n"
-	fi
+      echo "Building for ${OS}/${ARCH} with CGO_ENABLED=${CGO_ENABLED}"
+      GOARCH=${ARCH} GOOS=${OS} CGO_ENABLED=${CGO_ENABLED} ${GO_BUILD_CMD} -ldflags "${GO_BUILD_LDFLAGS}"\
+            -o "${REPO_ROOT}/release/${NAME}"
+      pushd "${REPO_ROOT}/release" > /dev/null
+      shasum -a 256 "${NAME}" > "${NAME}.sha256"
+      popd > /dev/null
+    fi
+  done
 done
-
-
-
-awk -v line=$(tput cols) 'BEGIN{for (i = 1; i <= line; ++i){printf "-";}}'
-printf "\n\n"
-
-
-printf "Zipping binaries....\n"
-(cd ${BIN_DIR}; zip -r  ${PACKAGE_NAME}.zip .)
-if [ -e ${BIN_DIR}/${PACKAGE_NAME}.zip ]
-then
-	printf "Zipped ok"
-else
-	printf "Zipped nok"
-fi
