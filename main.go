@@ -1,8 +1,8 @@
 package main
 
 import (
-	"gitlab.com/oleg.balunenko/kafka-dump/config"
-	"gitlab.com/oleg.balunenko/kafka-dump/dumper"
+	"github.com/oleg-balunenko/kafka-dump/config"
+	"github.com/oleg-balunenko/kafka-dump/dumper"
 )
 
 func main() {

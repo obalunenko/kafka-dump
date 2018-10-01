@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 
 	"github.com/Shopify/sarama"
+	"github.com/oleg-balunenko/kafka-dump/config"
 	log "github.com/sirupsen/logrus"
-	"gitlab.com/oleg.balunenko/kafka-dump/config"
 )
 
 func dumpMessage(cfg *config.Config, msg *sarama.ConsumerMessage) error {

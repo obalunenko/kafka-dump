@@ -1,22 +1,21 @@
 package config
 
 import (
+	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"os/user"
 	"path"
+	"path/filepath"
+	"strings"
 	"time"
 
-	"encoding/json"
+	log "github.com/sirupsen/logrus"
 
-	"strings"
-
-	"fmt"
-	"path/filepath"
+	"github.com/koding/multiconfig"
 
 	"github.com/Shopify/sarama"
-	"github.com/koding/multiconfig"
-	log "github.com/sirupsen/logrus"
 )
 
 // Config stores service config parameters

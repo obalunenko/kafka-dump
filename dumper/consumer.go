@@ -4,15 +4,13 @@ import (
 	"encoding/json"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
-	"github.com/bsm/sarama-cluster"
-	log "github.com/sirupsen/logrus"
-	"gitlab.com/oleg.balunenko/kafka-dump/config"
-
-	"sync"
-
 	"github.com/Shopify/sarama"
+	cluster "github.com/bsm/sarama-cluster"
+	"github.com/oleg-balunenko/kafka-dump/config"
+	log "github.com/sirupsen/logrus"
 )
 
 // Start - starts the dumper consumer loop and processing messages
