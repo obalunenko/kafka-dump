@@ -1,3 +1,4 @@
+<p align="center"><img src="docs/assets/kafka-dumper.png" width="360"></p>
 <p align="center">
     <a href="https://travis-ci.org/oleg-balunenko/kafka-dump"><img src="https://travis-ci.org/oleg-balunenko/kafka-dump.svg?branch=master" alt="Build Status"></img></a>
     <a href="https://goreportcard.com/report/github.com/oleg-balunenko/kafka-dump"><img src="https://goreportcard.com/badge/github.com/oleg-balunenko/kafka-dump" alt="Go Report Card"></img></a>
