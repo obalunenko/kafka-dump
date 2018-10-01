@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 
 
@@ -16,7 +17,7 @@ if [[ "$(pwd)" != "${REPO_ROOT}" ]]; then
 fi
 
 GO_BUILD_CMD="go build -a -installsuffix cgo"
-GO_BUILD_LDFLAGS="-s -w -X main.commitHash=${COMMIT_HASH} -X main.buildDate=${DATE} -X main.version=${VERSION} -X main.flagImportDuringSolve=${IMPORT_DURING_SOLVE}"
+GO_BUILD_LDFLAGS="-s -w -X main.commit=${COMMIT_HASH} -X main.buildDate=${DATE} -X main.version=${VERSION}  -X main.build=${TRAVIS_JOB_ID} -X main.flagImportDuringSolve=${IMPORT_DURING_SOLVE}"
 
 if [[ -z "${BUILD_PLATFORMS}" ]]; then
   BUILD_PLATFORMS="linux windows darwin"

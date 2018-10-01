@@ -15,8 +15,8 @@ var (
 
 func main() {
 
-	fmt.Printf("Version info: %s:%s", version, build)
-	fmt.Printf("commit: %s ", commit)
+	fmt.Printf("Version info: %s:%s\n", version, build)
+	fmt.Printf("commit: %s \n", commit)
 
 	service := config.LoadConfig()
 
