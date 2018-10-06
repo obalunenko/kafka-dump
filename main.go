@@ -18,8 +18,8 @@ func main() {
 	fmt.Printf("Version info: %s:%s\n", version, build)
 	fmt.Printf("commit: %s \n", commit)
 
-	service := config.LoadConfig()
+	svcCfg := config.LoadConfig()
 
-	dumper.Start(service)
+	dumper.Start(svcCfg.KafkaBrokers, svcCfg.KafkaGroupID, svcCfg.KafkaClientID, svcCfg.KafkaVersion(), svcCfg.Newest, svcCfg.Topics, svcCfg.OutputDir)
 
 }

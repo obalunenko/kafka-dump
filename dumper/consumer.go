@@ -9,23 +9,21 @@ import (
 
 	"github.com/Shopify/sarama"
 	"github.com/bsm/sarama-cluster"
-	"github.com/oleg-balunenko/kafka-dump/config"
 	log "github.com/sirupsen/logrus"
 )
 
 // Start - starts the dumper consumer loop and processing messages
-func Start(cfg *config.Config) {
-
+func Start(kafkaBrokers []string, kafkaGroupID string, kafkaClientID string, kafkaVersion sarama.KafkaVersion, kafkaNewestOffset bool, kafkaTopics []string, outputDir string) {
 	// Create Kafka consumers
 	kafkaConfig := cluster.NewConfig()
 
 	kafkaConfig.Group.Return.Notifications = true
 
-	kafkaConfig.ClientID = cfg.KafkaClientID
+	kafkaConfig.ClientID = kafkaClientID
 
 	kafkaConfig.Consumer.Return.Errors = true
-	kafkaConfig.Version = cfg.KafkaVersion()
-	if cfg.Newest {
+	kafkaConfig.Version = kafkaVersion
+	if kafkaNewestOffset {
 		log.Infof("Will use OffsetNewest")
 		kafkaConfig.Consumer.Offsets.Initial = sarama.OffsetNewest
 
@@ -35,7 +33,7 @@ func Start(cfg *config.Config) {
 
 	}
 
-	consumer, err := cluster.NewConsumer(cfg.KafkaBrokers, cfg.KafkaGroupID, cfg.Topics, kafkaConfig)
+	consumer, err := cluster.NewConsumer(kafkaBrokers, kafkaGroupID, kafkaTopics, kafkaConfig)
 
 	if err != nil {
 		log.Fatalf("Kafka connection failed. Err: %v", err)
@@ -70,7 +68,7 @@ func Start(cfg *config.Config) {
 				msgCount++
 				log.Debugf("Total amount of received messages: %d", msgCount)
 				mu.Unlock()
-				if err := dumpMessage(cfg, msg); err != nil {
+				if err := dumpMessage(outputDir, msg); err != nil {
 					log.Fatalf("Failed to dump message: %v", err)
 				}
 			} else {

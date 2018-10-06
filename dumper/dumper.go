@@ -6,11 +6,10 @@ import (
 	"path/filepath"
 
 	"github.com/Shopify/sarama"
-	"github.com/oleg-balunenko/kafka-dump/config"
 	log "github.com/sirupsen/logrus"
 )
 
-func dumpMessage(cfg *config.Config, msg *sarama.ConsumerMessage) error {
+func dumpMessage(outputDir string, msg *sarama.ConsumerMessage) error {
 	//filename to use
 	filename, err := generateFileName(msg)
 	if err != nil {
@@ -18,7 +17,7 @@ func dumpMessage(cfg *config.Config, msg *sarama.ConsumerMessage) error {
 		return err
 	}
 
-	err = writeLineToFile(cfg, msg.Value, filename, msg.Topic, msg.Partition)
+	err = writeLineToFile(outputDir, msg.Value, filename, msg.Topic, msg.Partition)
 	if err != nil {
 		log.Errorf("Failed writing file for offset %v. Err: %v", msg.Offset, err)
 		return err
@@ -35,9 +34,9 @@ func generateFileName(msg *sarama.ConsumerMessage) (string, error) {
 	return fmt.Sprintf("%s_Partition_%d.txt", msg.Timestamp.Format("2006-01-02"), msg.Partition), nil
 }
 
-func writeLineToFile(cfg *config.Config, line []byte, filename string, topic string, partition int32) error {
+func writeLineToFile(outputDir string, line []byte, filename string, topic string, partition int32) error {
 	var err error
-	fileLocation := filepath.Join(cfg.OutputDir, topic, fmt.Sprintf("partition-%d", partition), filename)
+	fileLocation := filepath.Join(outputDir, topic, fmt.Sprintf("partition-%d", partition), filename)
 	//create necessary dirs
 	if err := os.MkdirAll(filepath.Dir(fileLocation), 0700); err != nil {
 		log.Errorf("failed creating all dirs at %v for offset %v", filepath.Dir(fileLocation), err)
