@@ -15,5 +15,5 @@ require (
 	github.com/onsi/gomega v1.4.2 // indirect
 	github.com/pierrec/lz4 v2.0.5+incompatible // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20180503174638-e2704e165165 // indirect
-	github.com/sirupsen/logrus v1.1.0
+	github.com/sirupsen/logrus v1.2.0
 )
