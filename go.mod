@@ -2,7 +2,7 @@ module github.com/oleg-balunenko/kafka-dump
 
 require (
 	github.com/BurntSushi/toml v0.3.0 // indirect
-	github.com/Shopify/sarama v1.19.0
+	github.com/Shopify/sarama v1.20.0
 	github.com/Shopify/toxiproxy v2.1.3+incompatible // indirect
 	github.com/bsm/sarama-cluster v2.1.15+incompatible
 	github.com/eapache/go-resiliency v1.1.0 // indirect
@@ -15,5 +15,5 @@ require (
 	github.com/onsi/gomega v1.4.2 // indirect
 	github.com/pierrec/lz4 v2.0.5+incompatible // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20180503174638-e2704e165165 // indirect
-	github.com/sirupsen/logrus v1.1.0
+	github.com/sirupsen/logrus v1.2.0
 )
