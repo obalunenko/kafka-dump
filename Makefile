@@ -69,7 +69,7 @@ test-cover:
 	gocov convert .testCoverage.out | gocov report
 .PHONY: test-cover
 
-new-version:
+new-version: lint test compile
 	${call colored, new version is running...}
 	./scripts/version.sh
 .PHONY: new-version
