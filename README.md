@@ -7,12 +7,11 @@
    <a href="https://codebeat.co/projects/github-com-oleg-balunenko-kafka-dump-master"><img alt="codebeat badge" src="https://codebeat.co/badges/dd44b097-78f6-4990-a07c-75d8a4e4db33" /></a>
    <a href="https://sonarcloud.io/dashboard?id=kafka-dump"><img src="https://sonarcloud.io/api/project_badges/measure?project=kafka-dump&metric=alert_status" alt="Quality Gate Status"></img></a> 
    <a href="https://www.codefactor.io/repository/github/oleg-balunenko/kafka-dump"><img src="https://www.codefactor.io/repository/github/oleg-balunenko/kafka-dump/badge" alt="CodeFactor" /></a>
+   <a href="https://app.codacy.com/app/oleg.balunenko/kafka-dump?utm_source=github.com&utm_medium=referral&utm_content=oleg-balunenko/kafka-dump&utm_campaign=Badge_Grade_Dashboard"><img src="https://api.codacy.com/project/badge/Grade/a89fccffd3db434fb6478e1a1f53fca5" alt="Codacy code quality" /></a>
    <a href="https://github.com/oleg-balunenko/kafka-dump/releases/latest"><img src="https://img.shields.io/badge/artifacts-download-blue.svg" alt ="Latest release artifacts"></img></a>
 </p>
 
 # kafka-dump
-
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a89fccffd3db434fb6478e1a1f53fca5)](https://app.codacy.com/app/oleg.balunenko/kafka-dump?utm_source=github.com&utm_medium=referral&utm_content=oleg-balunenko/kafka-dump&utm_campaign=Badge_Grade_Dashboard)
 
 Kafka consumer that read data (multiply topics could be specified to )from kafka and write them to disk split by  topic, date
 
