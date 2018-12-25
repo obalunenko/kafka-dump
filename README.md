@@ -14,7 +14,7 @@ Kafka consumer that read data (multiply topics could be specified to )from kafka
 
 ## Configuration
 
-### Flags usage:
+### Flags usage
 
 ```text
   -clientid
@@ -44,7 +44,7 @@ Kafka consumer that read data (multiply topics could be specified to )from kafka
 
 ```
 
-### Environment variables:
+### Environment variables
 
 ```bash
 
@@ -63,7 +63,7 @@ Kafka consumer that read data (multiply topics could be specified to )from kafka
    
 ```
 
-### Example of config.toml file:
+### Example of config.toml file
 
 ```toml
 
