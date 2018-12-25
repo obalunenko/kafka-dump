@@ -11,11 +11,9 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
-	"github.com/koding/multiconfig"
-
 	"github.com/Shopify/sarama"
+	"github.com/koding/multiconfig"
+	log "github.com/sirupsen/logrus"
 )
 
 const timeFormat = "150405"
@@ -23,20 +21,23 @@ const toolName = "kafka-dumper"
 
 // Config stores service config parameters
 type Config struct {
-	Init               bool   `required:"false"`
-	OutputDir          string `default:"OUTPUT_DATA"`
-	KafkaClientID      string `default:"kafka-dumper"`
-	KafkaGroupID       string `default:"kafka-dumper"`
-	KafkaVersionString string `default:"0.10.2.0"`
 	kafkaVersion       sarama.KafkaVersion
 	KafkaBrokers       []string `required:"true"`
+	Topics             []string `required:"true"` // (example: '{"Topic1", "Topic2"}'
+	OutputDir          string   `default:"OUTPUT_DATA"`
+	KafkaClientID      string   `default:"kafka-dumper"`
+	KafkaGroupID       string   `default:"kafka-dumper"`
+	KafkaVersionString string   `default:"0.10.2.0"`
 	Timezone           string   `default:"GMT"`
 	Log                string   `default:"Info"`
-	LocalLog           bool     `required:"false"` // if true  - will write log to stdout and to file kafka-dump.log at OutputDir
-	Overwrite          bool     `required:"false"` // if true - will create unique consumerID and messages will be received again
-	Topics             []string `required:"true"`  // (example: '{"Topic1", "Topic2"}'
-	Newest             bool     `required:"false"` // if set true - will start dump all messages that appears in kafka after start of tool
+	LocalLog           bool     `required:"false"` // if true  - will write log to stdout and to
+	// file kafka-dump.log at OutputDir
 
+	Overwrite bool `required:"false"` // if true - will create unique consumerID and messages will be received again
+	Newest    bool `required:"false"` // if set true - will start dump all messages that appears in
+	// kafka after start of tool
+
+	Init bool `required:"false"`
 }
 
 // Help output for flags when program run with -h flag
@@ -51,7 +52,8 @@ func setFlagsHelp() map[string]string {
 	usageMsg["Log"] = `Log level: All, Debug, Info, Error, Fatal, Panic, Warn`
 	usageMsg["KafkaVersionString"] = `Kafka version`
 	usageMsg["OutputDir"] = "Location of directory where kafka dump will be stored locally"
-	usageMsg["Overwrite"] = "When select as true - all previous dump in specified OutputDir will be overwritten. All kafka messages would be read again"
+	usageMsg["Overwrite"] = `When select as true - 
+	all previous dump in specified OutputDir will be overwritten. All kafka messages would be read again`
 	usageMsg["Timezone"] = "Timezone that will be used for timestamps in messages"
 	usageMsg["Topics"] = `List of all topics with specified message type which will be dumped`
 	usageMsg["Log"] = `Log level that will be displayed (DEBUG, INFO, ERROR, WARN, FATAL"`
@@ -131,6 +133,8 @@ func LoadConfig() *Config {
 	svcConfig.addHostnameToClientID()
 
 	svcConfig.overwriteMessages()
+
+	svcConfig.setKafkaVersion()
 
 	err = m.Validate(svcConfig)
 	if err != nil {
