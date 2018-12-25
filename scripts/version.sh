@@ -35,7 +35,7 @@ function menu(){
     printf "2 - Minor update\n"
     printf "3 - Patch update\n"
     printf "4 - Exit\n"
-    read selection
+    read -r selection
     
     
     case "$selection" in
