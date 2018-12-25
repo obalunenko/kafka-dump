@@ -12,6 +12,8 @@
 
 # kafka-dump
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a89fccffd3db434fb6478e1a1f53fca5)](https://app.codacy.com/app/oleg.balunenko/kafka-dump?utm_source=github.com&utm_medium=referral&utm_content=oleg-balunenko/kafka-dump&utm_campaign=Badge_Grade_Dashboard)
+
 Kafka consumer that read data (multiply topics could be specified to )from kafka and write them to disk split by  topic, date
 
 
