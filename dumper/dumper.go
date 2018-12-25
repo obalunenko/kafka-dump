@@ -11,13 +11,9 @@ import (
 
 func dumpMessage(outputDir string, msg *sarama.ConsumerMessage) error {
 	//filename to use
-	filename, err := generateFileName(msg)
-	if err != nil {
-		log.Errorf("failed generating filename: %v", err)
-		return err
-	}
+	filename := generateFileName(msg)
 
-	err = writeLineToFile(outputDir, msg.Value, filename, msg.Topic, msg.Partition)
+	err := writeLineToFile(outputDir, msg.Value, filename, msg.Topic, msg.Partition)
 	if err != nil {
 		log.Errorf("Failed writing file for offset %v. Err: %v", msg.Offset, err)
 		return err
@@ -26,16 +22,16 @@ func dumpMessage(outputDir string, msg *sarama.ConsumerMessage) error {
 	return nil
 }
 
-func generateFileName(msg *sarama.ConsumerMessage) (string, error) {
+func generateFileName(msg *sarama.ConsumerMessage) string {
 
 	//timezone := svc.GetTimeZone()
 	log.Debugf("Timestamp: %s", msg.BlockTimestamp)
 
-	return fmt.Sprintf("%s_Partition_%d.txt", msg.Timestamp.Format("2006-01-02"), msg.Partition), nil
+	return fmt.Sprintf("%s_Partition_%d.txt", msg.Timestamp.Format("2006-01-02"), msg.Partition)
 }
 
 func writeLineToFile(outputDir string, line []byte, filename string, topic string, partition int32) error {
-	var err error
+
 	fileLocation := filepath.Join(outputDir, topic, fmt.Sprintf("partition-%d", partition), filename)
 	//create necessary dirs
 	if err := os.MkdirAll(filepath.Dir(fileLocation), 0700); err != nil {
@@ -65,6 +61,6 @@ func writeLineToFile(outputDir string, line []byte, filename string, topic strin
 		panic(err)
 	}
 
-	return err
+	return nil
 
 }
