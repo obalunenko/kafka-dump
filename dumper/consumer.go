@@ -65,7 +65,8 @@ func consumerLoop(consumer *cluster.Consumer, outputDir string, signals chan os.
 
 			if msg != nil {
 
-				log.Infof("received message from topic [%s]:[part[%d];offset[%d];key[%s]]", msg.Topic, msg.Partition, msg.Offset, msg.Key)
+				log.Infof("received message from topic [%s]:[part[%d];offset[%d];key[%s]]",
+					msg.Topic, msg.Partition, msg.Offset, msg.Key)
 				log.Debugf("Total amount of received messages: %d", atomic.LoadUint32(&msgCount))
 				if err := dumpMessage(outputDir, msg); err != nil {
 					log.Fatalf("Failed to dump message: %v", err)
