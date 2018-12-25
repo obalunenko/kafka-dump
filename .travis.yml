@@ -12,82 +12,57 @@ env:
   - secure: XNxP72Q/CkfUDTBrdIzbQYk8NtWruxE6vw/NRC5/sPGSsYFHivn9rcExGag3nJkx15JTvSZv65Sf6HNxRiKPFcDhqwztZYAujTbBIwYTg7Ic8xqmn4MNsg+As/6Nw85cK0RlUZHzpTf+uJPe11c3uYtvNa1Yw0Q0lbDhKM7cLhMB/K0LHCzL2E+ClIs/tq74EGkvG2ElH7Jn4VPgz+ZUVbJTU2bfXgotOlQ3znPm/ILwGWh+2E1mpBdyrhDi4PI5jF3lqHgC+UYoCEYazjzwPpXmobuwyhILLD9p8f11LTOw+F2mh1XTCu00503KfqJ9l+W8o+ZZsZgXXgmggYqbVP8BXnYq/P026M2rMi9W+iNDBIza/RHIhJyi2FFsXnL4YA7K4NXXHX61qmZbOr+QJQoSnggMxxR+7++SNJyZNP3hj7wQ46gXa2ezmf1Sdw2UnhB5Xqa0A9hu8rRdpHgOOQl6iZeLh0h4xIFC8eN1hu0zYljwE8Y1FlQNkQVx4AlLeo37vO44GlxylhXBk7BPPrRlhL51RU7DVIqTnb/ic7O3vLcJ2n62IzEOXJA2qaxjjgLUfh3rsFB5nBT0+tL73S9d7IjWQxFTHXFbj14iuaUoB0BWglzbO4aVk6YrDDUTg2Ah2CyfXCrsBGjzG/c14L7AuqTENppzgKkDagj0e84=
 jobs:
   include:
-  - stage: Unit Tests
-    go:
-    - 1.11.x
-    os:
-    - osx
-    script:
-    - env GO111MODULE=off
-    - echo "Run unit tests..."
-    - go get golang.org/x/tools/cmd/cover/...
-    - go get github.com/mattn/goveralls/...
-    - env GO111MODULE=on go test -v -race -coverpkg=./... -covermode=atomic -coverprofile=coverage.out
-      ./...
-    - "$HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken
-      $COVERALLS_TOKEN"
-    after_success:
-    - bash <(curl -s https://codecov.io/bash)
-  - stage: Metalinter analysis
-    go:
-    - 1.11.x
-    os:
-    - osx
-    script:
-    - env GO111MODULE=off
-    - go get -u github.com/alecthomas/gometalinter/...
-    - gometalinter --install
-    - go vet -composites=false $(go list ./... | grep -v /vendor/)
-    - gometalinter --vendor --disable=gotype --linter='errcheck:errcheck -blank .
-      :PATH:LINE:COL:MESSAGE'
-  - stage: Sonar Scanner
-    addons:
-      sonarcloud:
-        organization: oleg-balunenko-github
-        token: "$SONAR_TOKEN"
-    script:
-    - sonar-scanner -Dsonar.projectVersion=${TRAVIS_TAG}
-  - stage: Build Application
-    go:
-    - 1.11.x
-    os:
-    - osx
-    script:
-    - echo "Build stage"
-    - mkdir -p build/{386,amd64}
-    - GOARCH=386 go build --ldflags "-X main.version=${TRAVIS_TAG} -X main.build=${TRAVIS_BUILD_NUMBER}
-      -X main.commit=${TRAVIS_COMMIT}" -o build/386/${MYAPP}-386 *.go
-    - GOARCH=amd64 go build --ldflags "-X main.version=${TRAVIS_TAG} -X main.build=${TRAVIS_BUILD_NUMBER}
-      -X main.commit=${TRAVIS_COMMIT}" -o build/amd64/${MYAPP}-amd64 *.go
-  - stage: GitHub Release
-    go:
-    - 1.11.x
-    os:
-    - osx
-    go_import_path: github.com/oleg-balunenko/${MYAPP}
-    install: skip
-    script: skip
-    before_deploy:
-    - "./scripts/run-build.sh"
-    deploy:
-    - provider: releases
-      api_key:
-        secure: "${GH_TOKEN}"
-      file:
-      - release/${MYAPP}-linux-amd64
-      - release/${MYAPP}-linux-amd64.sha256
-      - release/${MYAPP}-darwin-amd64
-      - release/${MYAPP}-darwin-amd64.sha256
-      - release/${MYAPP}-windows-amd64.exe
-      - release/${MYAPP}-windows-amd64.exe.sha256
-      - release/${MYAPP}-linux-386
-      - release/${MYAPP}-linux-386.sha256
-      - release/${MYAPP}-windows-386.exe
-      - release/${MYAPP}-windows-386.exe.sha256
-      skip_cleanup: true
-      on:
-        repo: oleg-balunenko/${MYAPP}
-        branch: master
-        tags: true
-addons:
-  ssh_known_hosts: github.com
+    - stage: Unit Tests
+      go:
+        - 1.11.x
+      os:
+        - linux
+      install:
+        - env GO111MODULE=off
+        - make dependencies
+      script:
+        - echo "Run unit tests..."
+        - env GO111MODULE=on
+        - make test
+        - goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
+      after_success:
+        - bash <(curl -s https://codecov.io/bash)
+
+    - stage: Metalinter analysis
+      go:
+        - 1.11.x
+      os:
+        - linux
+      install:
+        - env GO111MODULE=off
+        - make dependencies
+      script:
+        - env GO111MODULE=off
+        - make lint
+    - stage: Sonar Scanner
+      addons:
+        sonarcloud:
+          organization: oleg-balunenko-github
+          token: "$SONAR_TOKEN"
+      script:
+        - sonar-scanner -Dsonar.projectVersion=${TRAVIS_TAG}
+
+    - stage: Build Application
+      go:
+        - 1.11.x
+      os:
+        - linux
+      go_import_path: github.com/oleg-balunenko/${MYAPP}
+      script:
+        - echo "Build stage"
+        - make compile
+      after_success:
+      deploy:
+        skip_cleanup: true
+        provider: script
+        script: make release
+        on:
+          tags: true
+          condition: $TRAVIS_OS_NAME = linux
+      addons:
+      ssh_known_hosts: github.com
