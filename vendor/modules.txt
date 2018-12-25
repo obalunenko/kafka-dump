@@ -1,6 +1,8 @@
 # github.com/BurntSushi/toml v0.3.0
 github.com/BurntSushi/toml
-# github.com/Shopify/sarama v1.19.0
+# github.com/DataDog/zstd v1.3.4
+github.com/DataDog/zstd
+# github.com/Shopify/sarama v1.20.0
 github.com/Shopify/sarama
 # github.com/bsm/sarama-cluster v2.1.15+incompatible
 github.com/bsm/sarama-cluster
@@ -20,14 +22,14 @@ github.com/fatih/structs
 github.com/golang/snappy
 # github.com/koding/multiconfig v0.0.0-20171124222453-69c27309b2d7
 github.com/koding/multiconfig
-# github.com/konsorten/go-windows-terminal-sequences v0.0.0-20180402223658-b729f2633dfe
+# github.com/konsorten/go-windows-terminal-sequences v1.0.1
 github.com/konsorten/go-windows-terminal-sequences
 # github.com/pierrec/lz4 v2.0.5+incompatible
 github.com/pierrec/lz4
 github.com/pierrec/lz4/internal/xxh32
 # github.com/rcrowley/go-metrics v0.0.0-20180503174638-e2704e165165
 github.com/rcrowley/go-metrics
-# github.com/sirupsen/logrus v1.1.0
+# github.com/sirupsen/logrus v1.2.0
 github.com/sirupsen/logrus
 # golang.org/x/crypto v0.0.0-20180904163835-0709b304e793
 golang.org/x/crypto/ssh/terminal
