@@ -12,10 +12,9 @@
 
 Kafka consumer that read data (multiply topics could be specified to )from kafka and write them to disk split by  topic, date
 
+## Configuration
 
-### Configuration
-
-Flags usage:
+### Flags usage:
 
 ```text
   -clientid
@@ -45,7 +44,7 @@ Flags usage:
 
 ```
 
-Environment variables:
+### Environment variables:
 
 ```bash
 
@@ -64,7 +63,7 @@ Environment variables:
    
 ```
 
-Example of config.toml file:
+### Example of config.toml file:
 
 ```toml
 
@@ -81,5 +80,3 @@ LocalLog=false
 Newest=false
 
 ```
-
-
