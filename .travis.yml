@@ -45,14 +45,14 @@ jobs:
           organization: oleg-balunenko-github
           token: "$SONAR_TOKEN"
       script:
-        - sonar-scanner -Dsonar.projectVersion="${TRAVIS_TAG}"
+        - sonar-scanner -Dsonar.projectVersion=${TRAVIS_TAG}
 
     - stage: Build Application
       go:
         - 1.11.x
       os:
         - linux
-      go_import_path: github.com/oleg-balunenko/"${MYAPP}"
+      go_import_path: github.com/oleg-balunenko/kafka-dump
       script:
         - echo "Build stage"
         - make compile
