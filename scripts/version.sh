@@ -49,7 +49,7 @@ function menu(){
             NEWVERSION=$(git tag | sed 's/\(.*v\)\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)/\2;\3;\4;\1/g' | sort  -t';' -k 1,1n  -k 2,2n -k 3,3n | tail -n 1  | awk -F';' '{printf "%s%d.%d.%d", $4, $1,$2,($3 + 1) }')
         ;;
         4) printf "Exit................................\n"
-            exit -1
+            exit 1
         ;;
         *) clear
             printf "Incorrect selection. Try again\n"
