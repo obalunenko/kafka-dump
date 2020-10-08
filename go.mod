@@ -3,7 +3,7 @@ module github.com/oleg-balunenko/kafka-dump
 require (
 	github.com/BurntSushi/toml v0.3.0 // indirect
 	github.com/DataDog/zstd v1.3.4 // indirect
-	github.com/Shopify/sarama v1.26.4
+	github.com/Shopify/sarama v1.27.1
 	github.com/bsm/sarama-cluster v2.1.15+incompatible
 	github.com/fatih/camelcase v1.0.0 // indirect
 	github.com/fatih/structs v1.0.0 // indirect
