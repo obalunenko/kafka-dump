@@ -17,7 +17,7 @@ linters-settings:
   lll:
     line-length: 140
   goimports:
-    local-prefixes: github.com/oleg-balunenko/simple-chat
+    local-prefixes: github.com/obalunenko/simple-chat
 
 linters:
   enable-all: true

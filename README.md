@@ -1,13 +1,13 @@
 <p align="center"><img src="docs/assets/kafka-dumper.png" width="360"></p>
 <p align="center">
     <a href="https://travis-ci.org/oleg-balunenko/kafka-dump"><img src="https://travis-ci.org/oleg-balunenko/kafka-dump.svg?branch=master" alt="Build Status"></img></a>
-    <a href="https://goreportcard.com/report/github.com/oleg-balunenko/kafka-dump"><img src="https://goreportcard.com/badge/github.com/oleg-balunenko/kafka-dump" alt="Go Report Card"></img></a>
+    <a href="https://goreportcard.com/report/github.com/obalunenko/kafka-dump"><img src="https://goreportcard.com/badge/github.com/obalunenko/kafka-dump" alt="Go Report Card"></img></a>
    <a href="https://coveralls.io/github/oleg-balunenko/kafka-dump?branch=master"><img src="https://coveralls.io/repos/github/oleg-balunenko/kafka-dump/badge.svg?branch=master" alt="Coverage Status"></img></a>
     <a href="https://codecov.io/gh/oleg-balunenko/kafka-dump"><img src="https://codecov.io/gh/oleg-balunenko/kafka-dump/branch/master/graph/badge.svg" /></a>
    <a href="https://codebeat.co/projects/github-com-oleg-balunenko-kafka-dump-master"><img alt="codebeat badge" src="https://codebeat.co/badges/dd44b097-78f6-4990-a07c-75d8a4e4db33" /></a>
    <a href="https://sonarcloud.io/dashboard?id=kafka-dump"><img src="https://sonarcloud.io/api/project_badges/measure?project=kafka-dump&metric=alert_status" alt="Quality Gate Status"></img></a> 
    <a href="https://app.codacy.com/app/oleg.balunenko/kafka-dump?utm_source=github.com&utm_medium=referral&utm_content=oleg-balunenko/kafka-dump&utm_campaign=Badge_Grade_Dashboard"><img src="https://api.codacy.com/project/badge/Grade/a89fccffd3db434fb6478e1a1f53fca5" alt="Codacy code quality" /></a>
-   <a href="https://github.com/oleg-balunenko/kafka-dump/releases/latest"><img src="https://img.shields.io/badge/artifacts-download-blue.svg" alt ="Latest release artifacts"></img></a>
+   <a href="https://github.com/obalunenko/kafka-dump/releases/latest"><img src="https://img.shields.io/badge/artifacts-download-blue.svg" alt ="Latest release artifacts"></img></a>
 </p>
 
 # kafka-dump

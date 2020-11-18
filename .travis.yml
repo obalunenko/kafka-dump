@@ -52,7 +52,7 @@ jobs:
         - 1.11.x
       os:
         - linux
-      go_import_path: github.com/oleg-balunenko/kafka-dump
+      go_import_path: github.com/obalunenko/kafka-dump
       script:
         - echo "Build stage"
         - make compile

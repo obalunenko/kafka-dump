@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/oleg-balunenko/kafka-dump/config"
-	"github.com/oleg-balunenko/kafka-dump/dumper"
+	"github.com/obalunenko/kafka-dump/config"
+	"github.com/obalunenko/kafka-dump/dumper"
 )
 
 var (
@@ -14,7 +14,6 @@ var (
 )
 
 func main() {
-
 	fmt.Printf("Version info: %s:%s\n", version, date)
 	fmt.Printf("commit: %s \n", commit)
 
@@ -22,5 +21,4 @@ func main() {
 
 	dumper.Start(svcCfg.KafkaBrokers, svcCfg.KafkaGroupID, svcCfg.KafkaClientID,
 		svcCfg.KafkaVersion(), svcCfg.Newest, svcCfg.Topics, svcCfg.OutputDir)
-
 }

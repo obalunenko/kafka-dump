@@ -16,10 +16,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const timeFormat = "150405"
-const toolName = "kafka-dumper"
+const (
+	timeFormat = "150405"
+	toolName   = "kafka-dumper"
+)
 
-// Config stores service config parameters
+// Config stores service config parameters.
 type Config struct {
 	kafkaVersion       sarama.KafkaVersion
 	KafkaBrokers       []string `required:"true"`
@@ -40,7 +42,7 @@ type Config struct {
 	Init bool `required:"false"`
 }
 
-// Help output for flags when program run with -h flag
+// Help output for flags when program run with -h flag.
 func setFlagsHelp() map[string]string {
 	usageMsg := make(map[string]string)
 
@@ -63,18 +65,19 @@ func setFlagsHelp() map[string]string {
 	return usageMsg
 }
 
-// GetTimeZone - parses timezone string and return time.Location representation
+// GetTimeZone - parses timezone string and return time.Location representation.
 func (c *Config) GetTimeZone() *time.Location {
-	var err error
 	timezone, err := time.LoadLocation(c.Timezone)
 	if err != nil {
 		log.Fatalf("Failed to set Timezone")
 	}
+
 	log.Infof("Timezone: %s", timezone)
+
 	return timezone
 }
 
-// Make each tool run unique - add hostname of runner to KafkaClientID for Kafka Consumer
+// Make each tool run unique - add hostname of runner to KafkaClientID for Kafka Consumer.
 func (c *Config) addHostnameToClientID() {
 	hn, err := os.Hostname()
 	if err != nil {
@@ -83,26 +86,24 @@ func (c *Config) addHostnameToClientID() {
 	}
 
 	c.KafkaClientID = c.KafkaClientID + "-" + hn
-
 }
 
-// Start reading kafka messages from the beginning and overwrite already received data
+// Start reading kafka messages from the beginning and overwrite already received data.
 func (c *Config) overwriteMessages() {
 	if c.Overwrite {
 		log.Infof("All received Messages will be overwritten")
+
 		c.KafkaGroupID += "-" + time.Now().Format(timeFormat)
 		c.KafkaClientID += "-" + time.Now().Format(timeFormat)
 
 		if err := os.RemoveAll(path.Join(c.OutputDir)); err != nil {
 			log.Fatalf("Failed to remove all dirs: %v", err)
 		}
-
 	}
 }
 
-// LoadConfig loads configuration for service to struct Config and store topics to Topics map
+// LoadConfig loads configuration for service to struct Config and store topics to Topics map.
 func LoadConfig() *Config {
-
 	svcConfig := &Config{}
 
 	log.Infof("Loading configuration\n")
@@ -111,18 +112,18 @@ func LoadConfig() *Config {
 	if errUser != nil {
 		log.Fatal(errUser)
 	}
+
 	log.Infof("Current Username: %s. Home dir: %s", usr.Username, usr.HomeDir)
 	configPath := path.Join(usr.HomeDir, ".config/", toolName)
 
 	m := newConfig(path.Join(configPath, "config.toml"), "KafkaDump", true)
 
-	err := m.Load(svcConfig)
-	if err != nil {
+	if err := m.Load(svcConfig); err != nil {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
+
 	if svcConfig.Init {
 		initServiceConfigFile()
-
 	}
 
 	// set logger
@@ -136,27 +137,25 @@ func LoadConfig() *Config {
 
 	svcConfig.setKafkaVersion()
 
-	err = m.Validate(svcConfig)
-	if err != nil {
-
+	if err := m.Validate(svcConfig); err != nil {
 		log.Fatalf("Config struct is invalid: %v\n", err)
 	}
 
 	log.Infof("Configuration loaded\n")
+
 	prettyConfig, err := json.MarshalIndent(svcConfig, "", "")
 	if err != nil {
 		log.Fatalf("Failed to marshal indent config: %v", err)
-
 	}
+
 	log.Infof("Current config:\n %s", string(prettyConfig))
 
 	return svcConfig
-
 }
 
-// KafkaVersion setter
+// KafkaVersion setter.
 func (c *Config) setKafkaVersion() {
-	//Parse kafkaVersion
+	// Parse kafkaVersion
 	if v, err := sarama.ParseKafkaVersion(c.KafkaVersionString); err == nil {
 		c.kafkaVersion = v
 	} else {
@@ -164,14 +163,12 @@ func (c *Config) setKafkaVersion() {
 	}
 }
 
-// KafkaVersion getter
+// KafkaVersion getter.
 func (c *Config) KafkaVersion() sarama.KafkaVersion {
-
 	return c.kafkaVersion
-
 }
 
-// Implementation of default loader for multiconfig
+// Implementation of default loader for multiconfig.
 func newConfig(path string, prefix string, camelCase bool) *multiconfig.DefaultLoader {
 	var loaders []multiconfig.Loader
 
@@ -186,9 +183,11 @@ func newConfig(path string, prefix string, camelCase bool) *multiconfig.DefaultL
 			// Choose what while is passed
 			if strings.HasSuffix(path, "toml") {
 				log.Debugf("Toml detected")
-				loaders = append(loaders, &multiconfig.TOMLLoader{Path: path})
+				loaders = append(loaders, &multiconfig.TOMLLoader{
+					Path:   path,
+					Reader: nil,
+				})
 			}
-
 		}
 	}
 
@@ -214,28 +213,31 @@ func newConfig(path string, prefix string, camelCase bool) *multiconfig.DefaultL
 	d := &multiconfig.DefaultLoader{}
 	d.Loader = loader
 	d.Validator = multiconfig.MultiValidator(&multiconfig.RequiredValidator{})
-	return d
 
+	return d
 }
 
-// creates initial config file
+// creates initial config file.
 func initServiceConfigFile() {
 	log.Infof("Creating initial config file...")
+
 	usr, errUser := user.Current()
 	if errUser != nil {
 		log.Fatal(errUser)
 	}
-	log.Infof("Current Username: %s. Home dir: %s", usr.Username, usr.HomeDir)
-	configPath := path.Join(usr.HomeDir, ".config", toolName, "config.toml")
-	if err := os.MkdirAll(filepath.Dir(configPath), 0700); err != nil {
-		log.Fatalf("failed creating all dirs for config file [%s]: %v", filepath.Dir(configPath), err)
 
+	log.Infof("Current Username: %s. Home dir: %s", usr.Username, usr.HomeDir)
+
+	configPath := path.Join(usr.HomeDir, ".config", toolName, "config.toml")
+	if err := os.MkdirAll(filepath.Dir(configPath), os.ModePerm); err != nil {
+		log.Fatalf("failed creating all dirs for config file [%s]: %v", filepath.Dir(configPath), err)
 	}
 
-	configFile, err := os.OpenFile(configPath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0777)
+	configFile, err := os.OpenFile(configPath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o777)
 	if err != nil {
 		log.Fatalf("error opening config file: %v", err)
 	}
+
 	OutputDir := path.Join(usr.HomeDir, "Desktop", "KAFKA-DUMP", "OUTPUT")
 
 	_, writeErr := configFile.WriteString(fmt.Sprintf(`OutputDir="%s"
@@ -252,35 +254,51 @@ Newest=false`, OutputDir))
 	if writeErr != nil {
 		log.Fatalf("Failed to write config file: %v", writeErr)
 	}
+
 	if err := configFile.Close(); err != nil {
 		log.Fatalf("Failed to close config file: %v", err)
 	}
+
 	log.Infof("Local initial config file was created at [%s]", configPath)
 	os.Exit(1)
 }
 
 func setLogger(cfg *Config) {
 	formatter := &log.TextFormatter{
-		FullTimestamp:   true,
-		TimestampFormat: "2006-01-02 15:04:05",
-		DisableSorting:  false,
-		ForceColors:     true,
+		ForceColors:               true,
+		DisableColors:             false,
+		ForceQuote:                false,
+		DisableQuote:              false,
+		EnvironmentOverrideColors: false,
+		DisableTimestamp:          false,
+		FullTimestamp:             true,
+		TimestampFormat:           "2006-01-02 15:04:05",
+		DisableSorting:            false,
+		SortingFunc:               nil,
+		DisableLevelTruncation:    false,
+		PadLevelText:              false,
+		QuoteEmptyFields:          false,
+		FieldMap:                  nil,
+		CallerPrettyfier:          nil,
 	}
+
 	log.SetFormatter(formatter)
+
 	lvl, err := log.ParseLevel(cfg.Log)
 	if err != nil {
 		lvl = log.InfoLevel
 	}
+
 	log.SetLevel(lvl)
 
 	if cfg.LocalLog {
 		// Open logfile
 		logFileLoc := path.Join(cfg.OutputDir, "kafka-dump.log")
-		if err := os.MkdirAll(filepath.Dir(logFileLoc), 0700); err != nil {
+		if err := os.MkdirAll(filepath.Dir(logFileLoc), 0o700); err != nil {
 			log.Fatalf("failed creating all dirs for logfile [%s]:  %v", filepath.Dir(logFileLoc), err)
-
 		}
-		logFile, err := os.OpenFile(logFileLoc, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0777)
+
+		logFile, err := os.OpenFile(logFileLoc, os.O_WRONLY|os.O_CREATE|os.O_APPEND, os.ModePerm)
 		if err != nil {
 			log.Fatalf("error opening file: %v", err)
 		}
@@ -290,5 +308,4 @@ func setLogger(cfg *Config) {
 
 		log.SetOutput(mw)
 	}
-
 }
