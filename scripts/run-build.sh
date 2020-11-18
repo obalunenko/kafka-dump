@@ -24,7 +24,7 @@ if [[ -z "${BUILD_PLATFORMS}" ]]; then
 fi
 
 if [[ -z "${BUILD_ARCHS}" ]]; then
-  BUILD_ARCHS="amd64 386"
+  BUILD_ARCHS="amd64"
 fi
 
 mkdir -p "${REPO_ROOT}/release"
