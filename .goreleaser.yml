@@ -2,7 +2,7 @@
 # Make sure to check the documentation at http://goreleaser.com
 release:
   github:
-    owner: oleg-balunenko
+    owner: obalunenko
     name: kafka-dump
 builds:
   - binary: kafka-dump
