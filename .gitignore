@@ -3,5 +3,4 @@
 
 release/
 
-\coverage.out/
-coverage.out
+*.out
