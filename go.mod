@@ -14,7 +14,7 @@ require (
 	github.com/onsi/ginkgo v1.14.2 // indirect
 	github.com/onsi/gomega v1.10.3 // indirect
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
-	github.com/sirupsen/logrus v1.7.0
+	github.com/sirupsen/logrus v1.8.0
 	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9 // indirect
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b // indirect
 	golang.org/x/sys v0.0.0-20201118182958-a01c418693c7 // indirect
